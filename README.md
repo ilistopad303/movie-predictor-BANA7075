@@ -16,7 +16,7 @@ This project develops a **machine learning system to predict movie return on inv
 
 ## Problem Statement  
 
-Studios and investors are required to make high-cost decisions with limited predictive insight. Movies often require significant upfront investment, yet there is no reliable way to estimate financial performance before release. As a result, decisions around budgeting, casting, and release strategy are often based on intuition or limited analysis.  
+Movie studios and investors are required to make high-cost decisions with limited predictive insight. Movies often require significant upfront investment, yet there is no reliable way to estimate financial performance before release. As a result, decisions around budgeting, casting, and release strategy are often based on intuition or limited analysis.  
 
 Movie success is influenced by many factors such as budget, genre, runtime, and release timing. However, these factors interact in complex and non-linear ways, making them difficult to model using traditional statistical methods.  
 
