@@ -1,160 +1,236 @@
-                          mjbvn # Movie Predictor
+# Predicting Movie ROI with Machine Learning   
 
-A FastAPI backend with Streamlit frontend for predicting movie performance.
+---
 
-## Project Structure
+## Team Members  
+- Jay Weil  
+- Drew Cobble  
+- M. Zafrul Hossain  
+- Will Morrison  
+- Ian Listopad 
 
-```
-movie-predictor-BANA7075/
-├── app.py                  # FastAPI backend
-├── streamlit_app.py        # Streamlit frontend
-├── requirements.txt        # Python dependencies
-├── README.md              # This file
-└── .streamlit/            # Streamlit configuration (optional)
-    └── config.toml
-```
+## Overview  
+The film industry operates under a high level of uncertainty when deciding which projects to fund. Studios often invest millions of dollars into production and marketing without a clear understanding of expected financial performance.  
 
-## Setup Instructions
+This project develops a **machine learning system to predict movie return on investment (ROI)** using pre-release features such as budget, runtime, genre, release timing, and director history. The goal is to provide a **data-driven tool** that helps stakeholders evaluate potential projects and reduce financial risk.
 
-### 1. Install Dependencies
+## Problem Statement  
 
-```bash
-pip install -r requirements.txt
-```
+Movie studios and investors are required to make high-cost decisions with limited predictive insight. Movies often require significant upfront investment, yet there is no reliable way to estimate financial performance before release. As a result, decisions around budgeting, casting, and release strategy are often based on intuition or limited analysis.  
 
-### 2. Run the FastAPI Backend
+Movie success is influenced by many factors such as budget, genre, runtime, and release timing. However, these factors interact in complex and non-linear ways, making them difficult to model using traditional statistical methods.  
 
-```bash
-python app.py
-```
+This project addresses that gap by using machine learning to:
+- Predict **return on investment (ROI)** using pre-release features  
+- Estimate **revenue and profit** outcomes  
+- Provide a **range of possible outcomes** to reflect uncertainty  
 
-Or use uvicorn directly:
+The goal is to support more structured, data-driven decision-making and reduce financial risk in the film investment process.
 
-```bash
-uvicorn app:app --reload
-```
+## Why Machine Learning?  
 
-The API will be available at: `http://localhost:8000`
-- API Docs: `http://localhost:8000/docs`
-- ReDoc: `http://localhost:8000/redoc`
+Movie performance is influenced by many interacting variables such as budget, genre, timing, and production characteristics. These relationships are often non-linear and difficult to capture using traditional modeling approaches.  
 
-### 3. Run the Streamlit Frontend (in a new terminal)
+Machine learning is well-suited for this problem because it can:
+- Capture **non-linear relationships** between variables  
+- Incorporate **multiple features simultaneously**  
+- Identify **hidden patterns** in historical data  
+- Improve performance as more data becomes available  
 
-```bash
-streamlit run streamlit_app.py
-```
+By leveraging machine learning, this project is able to move beyond simple assumptions and provide more accurate and flexible predictions for movie ROI and financial outcomes.
 
-The frontend will open in your browser at: `http://localhost:8501`
+## System Architecture  
 
-## Features
+The system is designed as a modular machine learning pipeline using Python. It consists of the following key components:
 
-### FastAPI Backend
-- **Health Check**: `/health` - Check API status
-- **Prediction Endpoint**: `/POST /predict` - Get movie performance predictions
-- **Interactive Documentation**: Automatic API docs via Swagger UI
-- **CORS Support**: Enabled for frontend communication
+### 1. Data Layer  
+- Input dataset: `movie_dataset_cleaned.csv`  
+- Contains film-level features such as budget, revenue, genres, runtime, and release date  
 
-### Streamlit Frontend
-- Interactive input form for movie parameters
-- Real-time predictions
-- Visual result display with metrics
-- API connection status indicator
-- Responsive design
+### 2. Feature Engineering Layer  
+- ROI calculation:
+- Log transformation of budget (`log_budget`) to reduce skew  
+- Extraction of release quarter from release date  
+- Binary encoding of genres  
+- Frequency encoding of directors (`director_count`)  
 
-## API Usage
+### 3. Preprocessing Pipeline  
+- Numerical features:
+- Median imputation for missing values  
+- Standard scaling  
+- Categorical features:
+- One-hot encoding for variables like release quarter and language  
 
-### Health Check
-```bash
-curl http://localhost:8000/health
-```
+### 4. Modeling Layer  
+- Primary model: **Random Forest Regressor**  
+- Benchmark model: **LASSO Regression**  
 
-### Make Prediction
-```bash
-curl -X POST http://localhost:8000/predict \
-  -H "Content-Type: application/json" \
-  -d '{
-    "budget": 50000000,
-    "runtime": 120,
-    "year": 2024,
-    "num_reviews": 500,
-    "avg_rating": 7.5
-  }'
-```
+### 5. Prediction Layer  
+- Generates predicted ROI  
+- Calculates estimated revenue and profit  
+- Produces a prediction range using model residuals
 
-## Input Parameters
+## ML Pipeline  
 
-- **budget**: Movie budget in USD (float)
-- **runtime**: Movie runtime in minutes (integer, 1-500)
-- **year**: Release year (integer, 1990-2050)
-- **num_reviews**: Expected number of reviews (integer, 0+)
-- **avg_rating**: Expected average rating 0-10 (float, 0.0-10.0)
+### Data Ingestion  
+- Data loaded from `movie_dataset_cleaned.csv`  
+- Initial checks performed:
+  - Missing values  
+  - Duplicate records  
+  - Summary statistics for numeric features  
 
-## Output
+---
 
-```json
-{
-  "input_data": {
-    "budget": 50000000,
-    "runtime": 120,
-    "year": 2024,
-    "num_reviews": 500,
-    "avg_rating": 7.5
-  },
-  "prediction": 234.56,
-  "confidence": 0.75,
-  "message": "Prediction successful"
-}
-```
+### Data Processing & Feature Engineering  
+Key transformations include:
+- Filtering out invalid rows (budget > 0)  
+- Creating ROI target variable  
+- Log transformation of budget to reduce skew  
+- Extracting release quarter from release date  
+- Encoding genres as binary features  
+- Frequency encoding directors (`director_count`)  
 
-## Development
+---
 
-### Adding a Real Model
+### Data Splitting & Versioning  
+- Train/Test split: **80/20**  
+- Processed datasets saved for reproducibility:
+  - `train_processed_v2.csv`  
+  - `test_processed_v2.csv`  
 
-Replace the mock prediction logic in `app.py` with your trained model:
+---
 
-```python
-# In app.py, replace the prediction logic
-model = joblib.load('path/to/your/model.pkl')
-prediction = model.predict(scaled_features)[0]
-```
+### Preprocessing Pipeline  
+Implemented using **ColumnTransformer + Pipeline**:
+- Numerical features:
+  - Median imputation  
+  - Standard scaling  
+- Categorical features:
+  - One-hot encoding  
 
-### Customizing the Frontend
+This ensures consistency between training and prediction environments.
 
-Edit `streamlit_app.py` to:
-- Change layout and styling
-- Add new input parameters
-- Modify result visualization
-- Add charts and analytics
+---
 
-## Requirements
+## Model Performance  
 
-- Python 3.8+
-- FastAPI 0.104.1+
-- Streamlit 1.29.0+
-- scikit-learn 1.3.2+
-- pandas 2.1.1+
-- numpy 1.24.3+
+### Models Used  
+- **Random Forest Regressor (Primary Model)**
+  - n_estimators = 200  
+  - max_depth = 10  
 
-## Troubleshooting
+- **LASSO Regression (Benchmark Model)**
+  - Alpha selected using cross-validation  
 
-### Frontend can't connect to API
-- Make sure both `app.py` and `streamlit_app.py` are running
-- Verify the API URL in `streamlit_app.py` matches your API endpoint
-- Check firewall settings
+---
 
-### Port conflicts
-- Change API port: `uvicorn app:app --port 8001`
-- Change Streamlit port: `streamlit run streamlit_app.py --server.port 8502`
+### Results  
 
-## Next Steps
+| Model           | MAE  | RMSE  | R²    |
+|----------------|------|------|------|
+| Random Forest  | 4.51 | 16.76 | 0.271 |
+| LASSO          | 6.92 | 19.04 | 0.060 |
 
-1. Integrate your trained machine learning model
-2. Add database integration for storing predictions
-3. Implement authentication if needed
-4. Deploy to cloud (AWS, Heroku, etc.)
-5. Add advanced features (batch predictions, model versioning, etc.)
+The Random Forest model outperformed LASSO across all evaluation metrics, achieving lower error and higher explanatory power.
 
-## License
+---
 
-MIT License
+### Feature Importance  
+- Log-transformed budget is the strongest predictor  
+- Genre variables contribute meaningful signal  
+- Director frequency provides additional predictive value  
+
+---
+
+##  Experiment Tracking  
+
+Experiments are logged in:
+- `experiment_log_v2.csv`  
+
+Tracked information includes:
+- Model type  
+- Hyperparameters  
+- Train/test split  
+- Performance metrics (MAE, RMSE, R²)
+
+## ROI Calculator (Prediction Tool)  
+
+The project includes a custom ROI calculator that allows users to input key movie features and receive predictions.
+
+### Inputs:
+- Budget  
+- Runtime  
+- Release quarter  
+- Original language  
+- Director experience (frequency count)  
+- Genre selection  
+
+### Outputs:
+- Predicted ROI  
+- Estimated revenue  
+- Estimated profit  
+- Revenue range (based on model residuals)  
+- Profitability classification (Profitable / Not Profitable)  
+
+This tool provides a simple way to interact with the model and simulate real-world decision scenarios.
+
+---
+
+## User Interface  
+
+An interactive interface was built using **ipywidgets**:
+- Input fields for movie attributes  
+- Multi-select genre input  
+- Button-triggered predictions  
+- Real-time output display  
+
+This serves as a prototype for a production-level application.
+
+---
+
+## 🚀 Deployment Strategy  
+
+### Current (MVP)
+- Model is deployed locally within a Python environment  
+- Saved using `joblib`:
+  - `random_forest_roi_v2.pkl`  
+- Predictions generated through scripts and interactive widgets  
+
+---
+
+### Future Deployment  
+In a real-world setting, this system could be deployed using:
+- **FastAPI + Docker** for serving predictions as an API  
+- **Cloud platforms** such as AWS, Azure, or GCP  
+- **CI/CD pipelines** for automated updates and retraining  
+- **Monitoring systems** to track model performance and drift  
+
+---
+
+## Challenges  
+
+- Movie success is inherently unpredictable  
+- Limited availability of key predictive features (e.g., marketing spend, competition)  
+- Data integration across multiple sources  
+- Difficulty deploying a full web application in the current environment  
+
+---
+
+## Future Improvements  
+
+- Incorporate additional features:
+  - Marketing budget  
+  - Social media sentiment  
+  - Competitive releases  
+- Improve model performance:
+  - Gradient Boosting / XGBoost  
+  - Ensemble methods  
+- Enhance deployment:
+  - Fully functional web application (Streamlit or FastAPI)  
+- Implement:
+  - Model monitoring  
+  - Automated retraining pipelines  
+
+---
+
 
