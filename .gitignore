@@ -208,3 +208,4 @@ __marimo__/'
 
 # MacOS Specific
 *.DS_Store
+*processed_v2.csv
