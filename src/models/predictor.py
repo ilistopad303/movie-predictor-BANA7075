@@ -132,7 +132,7 @@ def preproccessing_pipeline(core_genres):
     ])
     return preprocessor
 
-def rf_model(X_train, y_train, preprocessor):
+def rf_model(X_train, y_train, X_test, preprocessor):
     # Train the model and return fitted model
     from sklearn.ensemble import RandomForestRegressor
 
