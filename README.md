@@ -220,13 +220,16 @@ In a real-world setting, this system could be deployed using:
 
 - Incorporate additional features:
   - Marketing budget  
-  - Social media sentiment  
-  - Competitive releases  
+  - Social media buzz  
+  - Competitive releases
+  - Cast/actor popularity
 - Improve model performance:
   - Gradient Boosting / XGBoost  
   - Ensemble methods  
-- Enhance deployment:
-  - Fully functional web application (Streamlit or FastAPI)  
+- Enhance the exisiting application:
+  - Improver UI and user experience
+  - Add more flexible input options
+  - Make outputs easier to intpret  
 - Implement:
   - Model monitoring  
   - Automated retraining pipelines  
