@@ -30,7 +30,7 @@ class MovieInput(BaseModel):
     runtime: int
     quarter: int
     language: str
-    director: int
+    top_5_director: int
     genres: List[str]
 
 
@@ -79,7 +79,7 @@ async def predict(movie: MovieInput):
     - avg_rating: Average rating (0-10)
     """
     try:
-        pred_roi, pred_revenue, pred_profit, lower_roi, upper_roi, lower_revenue, upper_revenue = predict_movie(movie.budget,movie.runtime,movie.quarter,movie.language,movie.director,movie.genres)
+        pred_roi, pred_revenue, pred_profit, lower_roi, upper_roi, lower_revenue, upper_revenue = predict_movie(movie.budget,movie.runtime,movie.quarter,movie.language,movie.top_5_director,movie.genres)
         return PredictionResponse(
             input_data = movie,
             pred_roi = pred_roi,
