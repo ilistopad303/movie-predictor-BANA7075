@@ -4,11 +4,7 @@ FastAPI backend for Movie Predictor application
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List, Optional
-import numpy as np
-from sklearn.preprocessing import StandardScaler
-import joblib
-import os
+from typing import List
 from src.models.predictor import predict_movie
 
 app = FastAPI(
