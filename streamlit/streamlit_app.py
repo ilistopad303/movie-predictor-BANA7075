@@ -93,11 +93,12 @@ with col2:
         "Language (ISO code)",
         value="en"
     )
-    directors = st.number_input(
-        "How many Directors?",
-        min_value=1,
-        value=2
-    )
+    directors = 1
+    # directors = st.number_input(
+    #     "How many Directors?",
+    #     min_value=1,
+    #     value=2
+    # )
     genre = st.multiselect(
         "What Genres",
         ["Drama", "Comedy", "Romance", "Horror", "Thriller", "Crime",
