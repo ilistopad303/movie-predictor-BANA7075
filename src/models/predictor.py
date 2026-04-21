@@ -70,11 +70,15 @@ def train_data():
     for genre in core_genres:
         df[genre] = df['genres'].apply(lambda x: 1 if genre in x else 0)
 
-    # fill in missing director values
+        # fill in missing director values
     df['director'] = df['director'].fillna('Unknown')
 
-    # frequency encode director
-    df['director_count'] = df['director'].map(df['director'].value_counts())
+    # create top 5 director binary feature
+    top_5_directors = ['Guy Hamilton', 'George Lucas', 'James Wan', 'James Cameron', 'Mel Brooks']
+
+    df['top_5_director_binary'] = df['director'].apply(
+        lambda x: 1 if x in top_5_directors else 0
+    )
 
     # select features and target
     features = [
@@ -82,13 +86,80 @@ def train_data():
                    'runtime',
                    'release_quarter',
                    'original_language',
-                   'director_count'
+                   'top_5_director_binary'
                ] + core_genres
 
     target = 'ROI'
 
     X = df[features]
     y = df[target]
+
+            # --- Filter directors before ranking ---
+    # change 5 to another cutoff if you want
+    director_summary = (
+        df.groupby('director')
+        .agg(
+            movie_count=('director', 'count'),
+            total_budget=('budget', 'sum')
+        )
+        .query('movie_count >= 5')
+        .reset_index()
+    )
+
+    # keep only directors who meet the minimum movie threshold
+    df_filtered = df.merge(
+        director_summary[['director', 'movie_count']],
+        on='director',
+        how='inner'
+    )
+
+    # --- Weighted ROI ranking ---
+    # weighted ROI = sum(ROI * budget) / sum(budget)
+    top_weighted_roi = (
+        df_filtered.groupby('director')
+        .apply(lambda x: pd.Series({
+            'weighted_ROI': (x['ROI'] * x['budget']).sum() / x['budget'].sum(),
+            'avg_ROI': x['ROI'].mean(),
+            'movie_count': x['director'].count(),
+            'total_budget': x['budget'].sum()
+        }))
+        .reset_index()
+        .sort_values('weighted_ROI', ascending=False)
+        .head(5)
+    )
+
+    # --- Create Top 5 Director group dynamically ---
+    top_5_directors = top_weighted_roi['director'].tolist()
+
+    df['top_5_director_group'] = df['director'].apply(
+        lambda x: 'Top 5 Director' if x in top_5_directors else 'Other'
+    )
+
+    # optional binary version if needed for modeling
+    df['top_5_director_binary'] = df['director'].apply(
+        lambda x: 1 if x in top_5_directors else 0
+    )
+
+    # --- Top 5 directors by number of movies directed ---
+    top_count = (
+        df.groupby('director')
+        .size()
+        .reset_index(name='movie_count')
+        .sort_values('movie_count', ascending=False)
+        .head(5)
+    )
+
+    print("Top 5 Directors by Weighted ROI (minimum 5 movies)")
+    print(top_weighted_roi)
+
+    print("\nTop 5 Directors by Number of Movies Directed")
+    print(top_count)
+
+    print("\nTop 5 directors used for grouping:")
+    print(top_5_directors)
+
+    print("\nPreview of director grouping:")
+    print(df[['director', 'top_5_director_group', 'top_5_director_binary']].head())
 
     # train/split test
     from sklearn.model_selection import train_test_split
@@ -115,7 +186,7 @@ def train_data():
 
 def preproccessing_pipeline(core_genres):
     categorical_features = ['release_quarter', 'original_language']
-    numeric_features = ['log_budget', 'runtime', 'director_count'] + core_genres
+    numeric_features = ['log_budget', 'runtime', 'top_5_director_binary'] + core_genres
 
     numeric_transformer = Pipeline([
         ('imputer', SimpleImputer(strategy='median')),
@@ -148,7 +219,7 @@ def rf_model(X_train, y_train, X_test, preprocessor):
     rf_model_obj.fit(X_train, y_train)
     return rf_model_obj
 
-def predict_movie(budget,runtime,quarter,language,directors,genres):
+def predict_movie(budget,runtime,quarter,language,top_5_director,genres):
     core_genres, target, X_train, y_train, X_test = train_data()
     preprocessor = preproccessing_pipeline(core_genres)
 
@@ -156,7 +227,7 @@ def predict_movie(budget,runtime,quarter,language,directors,genres):
     runtime_input = runtime
     release_quarter_input = str(quarter)
     language_input = language.lower()
-    director_count_input = directors
+    top_5_director_binary = top_5_director
     selected_genres = list(genres)
 
     errors = []
@@ -165,8 +236,8 @@ def predict_movie(budget,runtime,quarter,language,directors,genres):
         errors.append("Budget must be greater than 0.")
     if runtime_input <= 0:
         errors.append("Runtime must be greater than 0.")
-    if director_count_input < 0:
-        errors.append("Director count must be 0 or greater.")
+    if top_5_director > 1:
+        errors.append("Top 5 Director is not a binary.")
     if language_input == "":
         errors.append("Language cannot be blank.")
     if len(selected_genres) == 0:
@@ -185,7 +256,7 @@ def predict_movie(budget,runtime,quarter,language,directors,genres):
         "runtime": [runtime_input],
         "release_quarter": [release_quarter_input],
         "original_language": [language_input],
-        "director_count": [director_count_input],
+        "top_5_director_binary": [top_5_director_binary],
         **genre_data
     })
 
