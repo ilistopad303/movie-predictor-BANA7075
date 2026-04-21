@@ -137,14 +137,14 @@ if st.button("🔮 Make Prediction", use_container_width=True, type="primary"):
         
         st.markdown("**Input Summary:**")
         input_df = pd.DataFrame({
-            "Metric": ["Budget", "Runtime", "Rating", "Reviews"],
+            "Metric": ["Budget", "Runtime", "Quarter", "Language", "Directors", "Genres"],
             "Value": [
-                f"${result['input_data']['budget']:,.0f}",
-                f"{result['input_data']['runtime']} min",
-                f"{result['input_data']['quarter']}",
-                f"{result['input_data']['language']}",
-                f"{result['input_data']['director']}",
-                f"{result['input_data']['genre']}"
+                f"${budget:,.2f}",
+                f"{runtime} min",
+                f"Q{quarter}",
+                language,
+                directors,
+                ", ".join(genre) if genre else "None"
             ]
         })
         st.dataframe(input_df, use_container_width=True, hide_index=True)
