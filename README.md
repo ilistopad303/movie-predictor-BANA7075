@@ -39,6 +39,105 @@ Machine learning is well-suited for this problem because it can:
 
 By leveraging machine learning, this project is able to move beyond simple assumptions and provide more accurate and flexible predictions for movie ROI and financial outcomes.
 
+## How to Run the Project  
+
+### 1. Clone the Repository  
+```bash
+git clone https://github.com/ilistopad303/movie-predictor-BANA7075.git
+cd movie-predictor-BANA7075
+```
+
+---
+
+### 2. Install Dependencies  
+It is recommended to use a virtual environment.
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+### 3. Run the FastAPI Backend  
+
+Start the API server:
+
+```bash
+code idk IAN help
+```
+
+
+
+### 4. Run the Streamlit Frontend  
+
+In a separate terminal:
+
+```bash
+streamlit run streamlit_app.py
+```
+
+This will launch the user interface in your browser.
+
+---
+
+### 5. Using the Application  
+
+- Enter movie features such as:
+  - Budget  
+  - Runtime  
+  - Year  
+  - Reviews / Rating  
+- Submit the form to receive:
+  - Predicted ROI  
+  - Estimated performance  
+  - Confidence output  
+
+---
+
+
+
+
+## Repository Structure  
+
+```
+├── .dvc/                     # Data version control configuration  
+├── .streamlit/              # Streamlit app configuration  
+├── data/                    # Raw and processed datasets  
+├── models/                  # Saved machine learning models  
+├── src/                     # Data processing / pipeline scripts  
+│   └── data/                # Data transformation logic  
+├── app.py                   # FastAPI backend (API endpoints)  
+├── streamlit_app.py         # Streamlit frontend (user interface)  
+├── Movie_ROI_Prediction_Model_Version_2_0.ipynb  # Main modeling notebook  
+├── requirements.txt         # Python dependencies  
+├── run.sh                   # Script to run application components  
+├── QUICKSTART.md            # Quick start instructions  
+├── SETUP_COMPLETE.md        # Setup documentation  
+├── README.md                # Project overview and documentation  
+├── .env.example             # Environment variable template  
+├── .gitignore               # Git ignore rules  
+```
+
+---
+
+## Project Components  
+
+- **FastAPI Backend (`app.py`)**  
+  Handles prediction requests and serves model outputs  
+
+- **Streamlit Frontend (`streamlit_app.py`)**  
+  Provides an interactive interface for users  
+
+- **Model (`models/`)**  
+  Stores trained machine learning models  
+
+- **Data (`data/`)**  
+  Contains datasets used for training and evaluation  
+
+- **Pipeline (`src/`)**  
+  Includes data processing and transformation logic  
+
+
 ## System Architecture  
 
 The system is designed as a modular machine learning pipeline using Python. It consists of the following key components:
@@ -188,7 +287,7 @@ This serves as a prototype for a production-level application.
 
 ---
 
-## 🚀 Deployment Strategy  
+## Deployment Strategy  
 
 ### Current (MVP)
 - Model is deployed locally within a Python environment  
