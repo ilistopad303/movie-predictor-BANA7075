@@ -27,15 +27,19 @@ def check_api_health():
     except:
         return False
 
-def make_prediction(budget, runtime, quarter, language, director, genre):
+def make_prediction(budget, runtime, quarter, language, top_5_director, genre):
     """Make a prediction via the API"""
+    if top_5_director == "True":
+        top_5_director = 1 
+    else:
+        top_5_director = 0
     try:
         payload = {
             "budget": float(budget),
             "runtime": int(runtime),
             "quarter": int(quarter),
             "language": str(language),
-            "director": int(director),
+            "top_5_director": int(top_5_director),
             "genres": list(genre)
         }
         
@@ -93,12 +97,10 @@ with col2:
         "Language (ISO code)",
         value="en"
     )
-    directors = 1
-    # directors = st.number_input(
-    #     "How many Directors?",
-    #     min_value=1,
-    #     value=2
-    # )
+    top_5_director = st.selectbox(
+    "Is this director in the top 5?",
+    ["True", "False"]
+    )
     genre = st.multiselect(
         "What Genres",
         ["Drama", "Comedy", "Romance", "Horror", "Thriller", "Crime",
@@ -109,7 +111,7 @@ with col2:
 # Prediction button
 if st.button("🔮 Make Prediction", use_container_width=True, type="primary"):
     with st.spinner("Making prediction..."):
-        result = make_prediction(budget, runtime, quarter, language, directors, genre)
+        result = make_prediction(budget, runtime, quarter, language, top_5_director, genre)
     
     if result:
         st.subheader("📈 Results")
